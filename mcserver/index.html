@@ -178,6 +178,86 @@ a{ color:inherit; }
   font-size:11px;
 }
 
+/* ---------------- PLAYERS ---------------- */
+
+.players-section{
+  padding:44px 0 8px;
+}
+
+.players-heading{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.players-heading h2{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--text-muted);
+  margin:0;
+  font-weight:600;
+}
+.players-count{
+  font-size:11px;
+  color:var(--text-faint);
+}
+
+.players-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+  gap:8px;
+}
+
+.player-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:8px 10px;
+  font-size:12.5px;
+}
+
+.edition-tag{
+  flex-shrink:0;
+  width:10px;
+  height:10px;
+  border:1px solid rgba(0,0,0,0.3);
+}
+.edition-tag.java{ background:#b98a5c; }
+.edition-tag.bedrock{ background:#8a8a8a; }
+.edition-tag.education{ background:#5c94b9; }
+
+.player-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--text);
+}
+
+.players-empty{
+  color:var(--text-faint);
+  font-size:12px;
+  padding:10px 0 4px;
+}
+
+.players-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+  font-size:11px;
+  color:var(--text-faint);
+}
+.players-legend span{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
 /* ---------------- CARDS ---------------- */
 
 .editions{
@@ -313,6 +393,22 @@ a{ color:inherit; }
 
   <div class="block-rule"></div>
 
+  <section class="players-section" id="players-section" style="display:none;">
+    <div class="players-heading">
+      <h2>Who's online</h2>
+      <div class="players-count" id="players-count"></div>
+    </div>
+    <div class="players-grid" id="players-grid"></div>
+    <div class="players-empty" id="players-empty" style="display:none;">Player list isn't available right now.</div>
+    <div class="players-legend">
+      <span><span class="edition-tag java"></span>Java</span>
+      <span><span class="edition-tag bedrock"></span>Bedrock</span>
+      <span><span class="edition-tag education"></span>Education</span>
+    </div>
+  </section>
+
+  <div class="block-rule"></div>
+
   <section class="editions">
 
     <!-- JAVA -->
@@ -395,10 +491,11 @@ a{ color:inherit; }
    ================================================================ */
 const CONFIG = {
   serverName:     "khoi's Education Server",          // shown as the big pixel-font title
-  javaAddress:    "mcedu.khoichon.dev",   // Java: hostname or hostname:port
-  bedrockAddress: "mcedu.khoichon.dev",   // Bedrock: hostname or IP
+  javaAddress:    "mcedu.khoichon",   // Java: hostname or hostname:port
+  bedrockAddress: "play.example.com",   // Bedrock: hostname or IP
   bedrockPort:    19132,                // Bedrock: default port is 19132
-  eduServerId:    "565227554342189870 ",       // 12-digit alphanumeric Server ID from
+  eduServerId:    "ABCD1234EFGH",       // 12-digit alphanumeric Server ID from
+                                         // your registered Education Dedicated Server
   refreshMs:      60000
 };
 /* ================================================================ */
@@ -416,6 +513,62 @@ function fillStaticFields(){
 function setBeaconState(state){ // 'online' | 'offline' | 'checking'
   $('beacon').className = 'beacon ' + state;
   $('status-line').className = 'status-line ' + state;
+}
+
+// Floodgate-style name prefixes: '+' = Education Edition, '.' = Bedrock, else Java.
+function classifyPlayer(rawName){
+  if(rawName.startsWith('+')){
+    return { edition:'education', name: rawName.slice(1) };
+  }
+  if(rawName.startsWith('.')){
+    return { edition:'bedrock', name: rawName.slice(1) };
+  }
+  return { edition:'java', name: rawName };
+}
+
+function renderPlayers(java){
+  const section = $('players-section');
+  const grid = $('players-grid');
+  const empty = $('players-empty');
+  const countEl = $('players-count');
+
+  const list = (java && java.online && java.players && Array.isArray(java.players.list)) ? java.players.list : null;
+
+  if(!java || !java.online){
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  grid.innerHTML = '';
+
+  if(!list || list.length === 0){
+    empty.style.display = 'block';
+    countEl.textContent = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  countEl.textContent = `${list.length} shown`;
+
+  list.forEach(p => {
+    const rawName = p.name_clean || p.name_raw || p.name || '';
+    const { edition, name } = classifyPlayer(rawName);
+
+    const row = document.createElement('div');
+    row.className = 'player-row';
+
+    const tag = document.createElement('span');
+    tag.className = 'edition-tag ' + edition;
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'player-name';
+    nameEl.textContent = name;
+
+    row.appendChild(tag);
+    row.appendChild(nameEl);
+    grid.appendChild(row);
+  });
 }
 
 async function fetchJSON(url){
@@ -453,6 +606,8 @@ async function checkStatus(){
     $('status-line').textContent = 'Offline';
     $('motd').textContent = '';
   }
+
+  renderPlayers(java);
 
   $('checked-at').textContent = 'Last checked ' + new Date().toLocaleTimeString();
 }
