@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Server Status</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   CONFIG NOTE: server details are set in the <script> block
+   at the bottom of this file (search for "EDIT THIS CONFIG").
+   ============================================================ */
+
+:root{
+  --bg:#15120d;
+  --surface:#1f1a12;
+  --surface-2:#2a2317;
+  --border:#3c3221;
+  --text:#f1e8d6;
+  --text-muted:#a9987b;
+  --text-faint:#6f6350;
+  --grass:#6ea83a;
+  --grass-bright:#9ede5e;
+  --torch:#e2a13a;
+  --redstone:#b3432b;
+  --font-display:'Press Start 2P', monospace;
+  --font-mono:'JetBrains Mono', ui-monospace, monospace;
+}
+
+*{ box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 900px 500px at 50% -10%, rgba(226,161,58,0.08), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-mono);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+::selection{ background:var(--torch); color:#15120d; }
+
+a{ color:inherit; }
+
+/* --- pixel block divider, the recurring texture element --- */
+.block-rule{
+  height:12px;
+  width:100%;
+  background-image:
+    linear-gradient(90deg, var(--border) 0 2px, transparent 2px 12px),
+    linear-gradient(var(--surface-2), var(--surface-2));
+  background-size:12px 12px, 100% 100%;
+  border-top:2px solid var(--border);
+  border-bottom:2px solid var(--border);
+  image-rendering:pixelated;
+}
+
+.wrap{
+  max-width:880px;
+  margin:0 auto;
+  padding:0 20px;
+}
+
+/* ---------------- HERO ---------------- */
+
+.hero{
+  padding:72px 0 48px;
+  text-align:center;
+}
+
+.eyebrow{
+  font-size:11px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  margin-bottom:22px;
+}
+
+/* Beacon: the signature status element */
+.beacon{
+  width:56px;
+  height:88px;
+  margin:0 auto 28px;
+  position:relative;
+}
+.beacon-block{
+  width:56px;
+  height:22px;
+  background:var(--surface-2);
+  border:2px solid var(--border);
+  position:relative;
+}
+.beacon-block + .beacon-block{ margin-top:3px; }
+.beacon-core{
+  width:36px;
+  height:36px;
+  margin:0 auto 3px;
+  border:2px solid var(--border);
+  background:var(--text-faint);
+  transition:background 0.4s ease, box-shadow 0.4s ease;
+  position:relative;
+  z-index:2;
+}
+.beacon-beam{
+  position:absolute;
+  left:50%;
+  bottom:100%;
+  transform:translateX(-50%);
+  width:14px;
+  height:0;
+  background:linear-gradient(to top, var(--grass-bright), transparent);
+  opacity:0;
+  transition:opacity 0.5s ease, height 0.5s ease;
+  filter:blur(1px);
+}
+
+.beacon.online .beacon-core{
+  background:var(--grass);
+  box-shadow:0 0 18px 4px rgba(158,222,94,0.55);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+.beacon.online .beacon-beam{
+  height:120px;
+  opacity:0.6;
+}
+.beacon.offline .beacon-core{
+  background:var(--surface-2);
+}
+.beacon.checking .beacon-core{
+  background:var(--torch);
+  box-shadow:0 0 12px 2px rgba(226,161,58,0.4);
+}
+
+@keyframes pulse{
+  0%,100%{ box-shadow:0 0 18px 4px rgba(158,222,94,0.55); }
+  50%{ box-shadow:0 0 26px 8px rgba(158,222,94,0.75); }
+}
+@media (prefers-reduced-motion:reduce){
+  .beacon.online .beacon-core{ animation:none; }
+}
+
+.server-name{
+  font-family:var(--font-display);
+  font-size:clamp(20px, 4vw, 32px);
+  line-height:1.5;
+  margin:0 0 18px;
+  color:var(--text);
+  text-shadow:0 0 24px rgba(226,161,58,0.25);
+}
+
+.status-line{
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  margin-bottom:6px;
+}
+.status-line .dot{ margin:0 8px; color:var(--text-faint); }
+.status-line.online{ color:var(--grass-bright); }
+.status-line.offline{ color:var(--redstone); }
+.status-line.checking{ color:var(--torch); }
+
+.motd{
+  color:var(--text-muted);
+  font-size:13px;
+  min-height:18px;
+  margin-bottom:4px;
+}
+
+.checked-at{
+  color:var(--text-faint);
+  font-size:11px;
+}
+
+/* ---------------- CARDS ---------------- */
+
+.editions{
+  padding:48px 0 56px;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+}
+@media (max-width:720px){
+  .editions{ grid-template-columns:1fr; }
+}
+
+.card{
+  background:var(--surface);
+  border:2px solid var(--border);
+  padding:22px 20px 24px;
+  display:flex;
+  flex-direction:column;
+}
+
+.card-icon{
+  width:28px;
+  height:28px;
+  margin-bottom:14px;
+  image-rendering:pixelated;
+}
+
+.card-title{
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.03em;
+  margin-bottom:4px;
+}
+.card-sub{
+  font-size:11.5px;
+  color:var(--text-faint);
+  margin-bottom:16px;
+}
+
+.field-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--text-faint);
+  margin-bottom:5px;
+}
+
+.field-row{
+  display:flex;
+  align-items:stretch;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  margin-bottom:16px;
+}
+.field-value{
+  flex:1;
+  padding:9px 10px;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--text);
+  overflow-x:auto;
+  white-space:nowrap;
+}
+.copy-btn{
+  flex-shrink:0;
+  background:var(--surface-2);
+  border:none;
+  border-left:1px solid var(--border);
+  color:var(--text-muted);
+  font-family:var(--font-mono);
+  font-size:11px;
+  padding:0 12px;
+  cursor:pointer;
+  transition:background 0.15s ease, color 0.15s ease;
+}
+.copy-btn:hover{ background:var(--torch); color:#15120d; }
+.copy-btn:focus-visible{ outline:2px solid var(--grass-bright); outline-offset:-2px; }
+
+.steps{
+  list-style:none;
+  margin:0;
+  padding:0;
+  font-size:12px;
+  color:var(--text-muted);
+  flex:1;
+}
+.steps li{
+  padding-left:20px;
+  position:relative;
+  margin-bottom:8px;
+}
+.steps li::before{
+  content:attr(data-n);
+  position:absolute;
+  left:0;
+  top:0;
+  color:var(--torch);
+  font-weight:700;
+  font-size:11px;
+}
+
+/* ---------------- FOOTER ---------------- */
+
+.footer{
+  padding:32px 0 60px;
+  text-align:center;
+  color:var(--text-faint);
+  font-size:11px;
+}
+.footer a{ color:var(--text-muted); text-decoration:underline; text-underline-offset:2px; }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="eyebrow">Server Status</div>
+
+    <div class="beacon checking" id="beacon">
+      <div class="beacon-beam"></div>
+      <div class="beacon-core"></div>
+      <div class="beacon-block"></div>
+      <div class="beacon-block"></div>
+    </div>
+
+    <h1 class="server-name" id="server-name">SERVER NAME</h1>
+    <div class="status-line checking" id="status-line">Checking status…</div>
+    <div class="motd" id="motd"></div>
+    <div class="checked-at" id="checked-at"></div>
+  </section>
+
+  <div class="block-rule"></div>
+
+  <section class="editions">
+
+    <!-- JAVA -->
+    <div class="card">
+      <svg class="card-icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#8a6a4a"/><rect x="2" y="2" width="12" height="12" fill="#b98a5c"/><rect x="4" y="4" width="3" height="3" fill="#6ea83a"/><rect x="9" y="9" width="3" height="3" fill="#6ea83a"/></svg>
+      <div class="card-title">Java Edition</div>
+      <div class="card-sub">PC / Mac / Linux</div>
+
+      <div class="field-label">Server address</div>
+      <div class="field-row">
+        <div class="field-value" id="java-address">—</div>
+        <button class="copy-btn" data-copy-target="java-address">copy</button>
+      </div>
+
+      <ol class="steps">
+        <li data-n="1">Open Minecraft → Multiplayer</li>
+        <li data-n="2">Add Server, paste the address above</li>
+        <li data-n="3">Done → double-click to join</li>
+      </ol>
+    </div>
+
+    <!-- BEDROCK -->
+    <div class="card">
+      <svg class="card-icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#5c5c5c"/><rect x="2" y="2" width="12" height="12" fill="#8a8a8a"/><rect x="4" y="4" width="3" height="3" fill="#e2a13a"/><rect x="9" y="9" width="3" height="3" fill="#e2a13a"/></svg>
+      <div class="card-title">Bedrock Edition</div>
+      <div class="card-sub">Mobile / Console / Windows</div>
+
+      <div class="field-label">Server address</div>
+      <div class="field-row">
+        <div class="field-value" id="bedrock-address">—</div>
+        <button class="copy-btn" data-copy-target="bedrock-address">copy</button>
+      </div>
+
+      <div class="field-label">Port</div>
+      <div class="field-row">
+        <div class="field-value" id="bedrock-port">—</div>
+        <button class="copy-btn" data-copy-target="bedrock-port">copy</button>
+      </div>
+
+      <ol class="steps">
+        <li data-n="1">Open Minecraft → Servers tab</li>
+        <li data-n="2">Add Server → enter address and port above</li>
+        <li data-n="3">Save → tap to join</li>
+      </ol>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="card">
+      <svg class="card-icon" viewBox="0 0 16 16"><rect width="16" height="16" fill="#3a6a8a"/><rect x="2" y="2" width="12" height="12" fill="#5c94b9"/><rect x="4" y="4" width="3" height="3" fill="#f1e8d6"/><rect x="9" y="9" width="3" height="3" fill="#f1e8d6"/></svg>
+      <div class="card-title">Education Edition</div>
+      <div class="card-sub">Connection ID method</div>
+
+      <div class="field-label">Server ID</div>
+      <div class="field-row">
+        <div class="field-value" id="edu-id">—</div>
+        <button class="copy-btn" data-copy-target="edu-id">copy</button>
+      </div>
+
+      <ol class="steps">
+        <li data-n="1">Open Minecraft Education → Play → Servers</li>
+        <li data-n="2">Add Server → enter the Server ID above</li>
+        <li data-n="3">Select it in the list to join</li>
+      </ol>
+    </div>
+
+  </section>
+
+  <div class="block-rule"></div>
+
+  <div class="footer">
+    Status refreshes automatically every 60 seconds, powered by
+    <a href="https://mcstatus.io" target="_blank" rel="noopener">mcstatus.io</a>.
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   EDIT THIS CONFIG — fill in your own server's details.
+   ================================================================ */
+const CONFIG = {
+  serverName:     "khoi's Education Server",          // shown as the big pixel-font title
+  javaAddress:    "mcedu.khoichon.dev",   // Java: hostname or hostname:port
+  bedrockAddress: "mcedu.khoichon.dev",   // Bedrock: hostname or IP
+  bedrockPort:    19132,                // Bedrock: default port is 19132
+  eduServerId:    "565227554342189870 ",       // 12-digit alphanumeric Server ID from
+  refreshMs:      60000
+};
+/* ================================================================ */
+
+function $(id){ return document.getElementById(id); }
+
+function fillStaticFields(){
+  $('server-name').textContent = CONFIG.serverName;
+  $('java-address').textContent = CONFIG.javaAddress;
+  $('bedrock-address').textContent = CONFIG.bedrockAddress;
+  $('bedrock-port').textContent = CONFIG.bedrockPort;
+  $('edu-id').textContent = CONFIG.eduServerId;
+}
+
+function setBeaconState(state){ // 'online' | 'offline' | 'checking'
+  $('beacon').className = 'beacon ' + state;
+  $('status-line').className = 'status-line ' + state;
+}
+
+async function fetchJSON(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('bad response');
+  return res.json();
+}
+
+async function checkStatus(){
+  setBeaconState('checking');
+  $('status-line').textContent = 'Checking status…';
+
+  let java = null, bedrock = null;
+
+  try{
+    java = await fetchJSON('https://api.mcstatus.io/v2/status/java/' + encodeURIComponent(CONFIG.javaAddress));
+  }catch(e){ /* java lookup failed or offline */ }
+
+  try{
+    bedrock = await fetchJSON('https://api.mcstatus.io/v2/status/bedrock/' + encodeURIComponent(CONFIG.bedrockAddress + ':' + CONFIG.bedrockPort));
+  }catch(e){ /* bedrock lookup failed or offline */ }
+
+  const isOnline = (java && java.online) || (bedrock && bedrock.online);
+
+  if(isOnline){
+    setBeaconState('online');
+    const players = (java && java.online) ? java.players : (bedrock ? bedrock.players : null);
+    const count = players ? `${players.online}/${players.max} players` : 'players online';
+    $('status-line').textContent = `Online · ${count}`;
+
+    const motdSource = (java && java.online) ? java.motd : (bedrock && bedrock.online ? bedrock.motd : null);
+    $('motd').textContent = motdSource && motdSource.clean ? motdSource.clean.split('\n')[0] : '';
+  } else {
+    setBeaconState('offline');
+    $('status-line').textContent = 'Offline';
+    $('motd').textContent = '';
+  }
+
+  $('checked-at').textContent = 'Last checked ' + new Date().toLocaleTimeString();
+}
+
+function wireCopyButtons(){
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.getAttribute('data-copy-target');
+      const text = $(targetId).textContent;
+      try{
+        await navigator.clipboard.writeText(text);
+        const original = btn.textContent;
+        btn.textContent = 'copied';
+        setTimeout(() => { btn.textContent = original; }, 1200);
+      }catch(e){ /* clipboard blocked, ignore silently */ }
+    });
+  });
+}
+
+fillStaticFields();
+wireCopyButtons();
+checkStatus();
+setInterval(checkStatus, CONFIG.refreshMs);
+</script>
+
+</body>
+</html>
