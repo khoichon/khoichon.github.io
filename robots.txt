@@ -1,4 +1,3 @@
-```txt
 # Default: block the pages from crawlers
 User-agent: *
 Allow: /
@@ -16,4 +15,3 @@ Allow: /notMyFirstHTML/part*
 Allow: /notMyFirstHTML/*end*
 
 Sitemap: https://khoichon.dev/sitemap.xml
-```
