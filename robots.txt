@@ -1,0 +1,19 @@
+```txt
+# Default: block the pages from crawlers
+User-agent: *
+Allow: /
+Disallow: /notMyFirstHTML/part*
+Disallow: /notMyFirstHTML/*end*
+
+# Allow OpenAI's crawler
+User-agent: OAI-SearchBot
+Allow: /notMyFirstHTML/part*
+Allow: /notMyFirstHTML/*end*
+
+# Allow Anthropic's crawler
+User-agent: ClaudeBot
+Allow: /notMyFirstHTML/part*
+Allow: /notMyFirstHTML/*end*
+
+Sitemap: https://khoichon.dev/sitemap.xml
+```
