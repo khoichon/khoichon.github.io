@@ -14,4 +14,7 @@ User-agent: ClaudeBot
 Allow: /notMyFirstHTML/part*
 Allow: /notMyFirstHTML/*end*
 
+# Content Signals Policy: https://cloudflare.com
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+
 Sitemap: https://khoichon.dev/sitemap.xml
