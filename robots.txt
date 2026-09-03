@@ -3,6 +3,7 @@ User-agent: *
 Allow: /
 Disallow: /notMyFirstHTML/part*
 Disallow: /notMyFirstHTML/*end*
+Disallow: /mindustry-web/onlinemode*
 
 # Allow OpenAI's crawler
 User-agent: OAI-SearchBot
