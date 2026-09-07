@@ -1,33 +1,247 @@
 <!DOCTYPE html>
-<html></html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khoi's Random Stuff</title>
-    <meta name="description" content="His projects are lying around here, check it out!">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khoi's Random Stuff</title>
+<meta name="description" content="His projects are lying around here, check it out!">
 
-    <!-- Facebook Meta Tags -->
-    <meta property="og:url" content="https://khoichon.dev/">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="khoichon's site">
-    <meta property="og:description" content="His projects are lying around here, check it out!">
-    <meta property="og:image" content="/logo.jpeg">
+<!-- Facebook Meta Tags -->
+<meta property="og:url" content="https://khoichon.dev/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="khoichon's site">
+<meta property="og:description" content="His projects are lying around here, check it out!">
+<meta property="og:image" content="/logo.jpeg">
 
-    <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta property="twitter:domain" content="khoichon.dev">
-    <meta property="twitter:url" content="https://khoichon.dev/">
-    <meta name="twitter:title" content="khoichon's site">
-    <meta name="twitter:description" content="His projects are lying around here, check it out!">
-    <meta name="twitter:image" content="/logo.jpeg">
+<!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta property="twitter:domain" content="khoichon.dev">
+<meta property="twitter:url" content="https://khoichon.dev/">
+<meta name="twitter:title" content="khoichon's site">
+<meta name="twitter:description" content="His projects are lying around here, check it out!">
+<meta name="twitter:image" content="/logo.jpeg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #0b0c0e;
+    --panel: #131519;
+    --panel-edge: #23262c;
+    --text: #d9dbe0;
+    --muted: #74787f;
+    --accent: #ff5f5f;
+    --accent-dim: #7a3535;
+    --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(255,95,95,0.06), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(255,95,95,0.04), transparent 45%);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .crt{
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background: #1a1c20;
+    border: 1px solid var(--panel-edge);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 10px 14px;
+  }
+
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.r{ background:#ff5f57; }
+  .dot.y{ background:#febc2e; }
+  .dot.g{ background:#28c840; }
+
+  .titlebar span{
+    margin-left: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .term{
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 0 0 10px 10px;
+    padding: 28px 26px 32px;
+    font-size: 14.5px;
+    line-height: 1.65;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+
+  .line{ white-space: pre-wrap; word-break: break-word; }
+
+  .prompt{ color: var(--accent); }
+  .path{ color: #8fa3ff; }
+  .comment{ color: var(--muted); font-style: italic; }
+
+  .projects{
+    margin: 6px 0 4px 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .projects li{
+    display: flex;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--panel-edge);
+  }
+  .projects li:last-child{ border-bottom: none; }
+
+  .projects .name a{
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 1px solid var(--accent-dim);
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .projects .name a:hover,
+  .projects .name a:focus-visible{
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .projects .desc{
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .extras{
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--panel-edge);
+    display:flex;
+    align-items:center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .extras img{
+    display:block;
+    height: 42px;
+    filter: saturate(0.9);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .extras a:hover img, .extras a:focus-visible img{
+    transform: translateY(-1px);
+    filter: saturate(1.1);
+  }
+
+  .cursor{
+    display:inline-block;
+    width: 8px;
+    height: 1em;
+    background: var(--accent);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink{ 50%{ opacity: 0; } }
+
+  footer{
+    text-align:center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 18px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .cursor{ animation: none; }
+  }
+
+  @media (max-width: 520px){
+    .term{ padding: 20px 16px 24px; font-size: 13.5px; }
+    .projects li{ flex-direction: column; gap: 2px; }
+  }
+</style>
 </head>
 <body>
-    main page work in progress! please wait for it to finish
-    here are some of my projects:<br>
-    <a href=/lightsim>lightsim</a><br>
-    <a href=/notMyFirstHTML>ARG</a><br>
-    <a href=/notMyFirstHTML/misc/taskmanager/>Task Manager</a>
-    <br>
-    <a>Extra Stuff:</a><br>
-    <a href="https://www.buymeacoffee.com/khoichon"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a strawberry&emoji=🍓&slug=khoichon&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
+
+<div class="crt">
+  <div class="titlebar">
+    <span class="dot r"></span>
+    <span class="dot y"></span>
+    <span class="dot g"></span>
+    <span>khoi@khoichon.dev</span>
+  </div>
+
+  <div class="term">
+    <div class="line"><span class="prompt">$</span> whoami</div>
+    <div class="line">khoi — building whatever seems fun (Minecraft plugins, browser ports, bots, and this site)</div>
+    <div class="line">&nbsp;</div>
+
+    <div class="line"><span class="prompt">$</span> cat status.txt</div>
+    <div class="line comment"># homepage's still a work in progress, but the projects below all work fine</div>
+    <div class="line">&nbsp;</div>
+
+    <div class="line"><span class="prompt">$</span> ls <span class="path">./projects</span></div>
+    <ul class="projects">
+      <li>
+        <div>
+          <div class="name"><a href="/lightsim">lightsim</a></div>
+          <div class="desc">a little light-reflection sandbox</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <div class="name"><a href="/notMyFirstHTML">ARG</a></div>
+          <div class="desc">a weird little trail worth clicking through</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <div class="name"><a href="/notMyFirstHTML/misc/taskmanager/">Task Manager</a></div>
+          <div class="desc">a to-do app, hidden inside the ARG above</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <div class="name"><a href="/mindustry-web">Mindustry, in your browser</a></div>
+          <div class="desc">the Java game, ported to run straight off this page</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="extras">
+      <a href="https://www.buymeacoffee.com/khoichon">
+        <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a strawberry&emoji=🍓&slug=khoichon&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" alt="Buy me a coffee">
+      </a>
+      <span class="comment">// completely optional, but appreciated</span>
+    </div>
+
+    <div class="line" style="margin-top:18px;"><span class="prompt">$</span> <span class="cursor"></span></div>
+  </div>
+
+  <footer>khoichon.dev</footer>
+</div>
+
 </body>
 </html>
