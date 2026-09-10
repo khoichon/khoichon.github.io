@@ -523,10 +523,10 @@ function setBeaconState(state){ // 'online' | 'offline' | 'checking'
 
 // Floodgate-style name prefixes: '+' = Education Edition, '.' = Bedrock, else Java.
 function classifyPlayer(rawName){
-  if(rawName.startsWith('+')){
+  if(rawName.startsWith('0')){
     return { edition:'education', name: rawName.slice(1) };
   }
-  if(rawName.startsWith('.')){
+  if(rawName.startsWith('_')){
     return { edition:'bedrock', name: rawName.slice(1) };
   }
   return { edition:'java', name: rawName };
